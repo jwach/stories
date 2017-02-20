@@ -8,6 +8,8 @@ date: 2017-02-17
 
 [slice of architecture diagram]
 
+![Architecture overview]({{ site.url }}/assets/architecture.svg)
+
 There is one very central point in the architecture of our payment platform, the Order Service. It orchestrates all payment flows, receiving user requests and making downstream calls to payment provider adapters (PPAs)(don't write about it?? only mention as a minor hop) and other internal services. PPAs are responsible for integrating with APIs of external payment providers (credit cards, SMS payments, wire transfers, etc.). (we allow combined flows and offer internal e-wallet solution)
 
 Depending on the flow, most user requests involve multiple synchronous calls to downstream services, often including more than one PPA. As we integrate with a lot of country-specific providers, quality of their APIs vary a lot. It is impossible to define a common [SLA][sla] with all of them, so we cannot rely on any solid boundaries for request execution time or service uptime. (mention also response times hitting 10s)
@@ -26,36 +28,72 @@ Another solution I looked into was isolating points of access between external p
 
 # Hystrix
 
-Further reasearching the subject, I have discovered [Hystrix][hystrix-homepage]. It is a latency and fault tolerance library designed to isolate points of access to remote systems, stop cascading failure and enable resilience in distributed systems. It has been developed by [Netflix][netflix-github] among many other great libraries supporting development of microservices, like [Eureka][eureka], [Ribbon][ribbon] or [Asgard][asgard]. Hystrix is able to provide the same thread pool isolation as mentioned above, together with lots of other useful features.
+Further reasearching the subject, I have discovered [Hystrix][hystrix-homepage]. It is a latency and fault tolerance library designed to isolate points of access to remote systems, stop cascading failure and enable resilience in distributed systems. It has been developed by [Netflix][netflix-github] among many other great libraries supporting development of microservices, like [Eureka][eureka], [Ribbon][ribbon] or [Asgard][asgard]. Hystrix is able to provide the same thread pool isolation as mentioned above, together with lots of other useful features. I stopped searching here, in my opinion, it was the right tool for the job.
+
+For Spring Boot applications, thanks to [javanica][javanica-github] contrib library, enabling Hystrix boils down to including a couple of annotations.
 
 {% highlight java %}
 @Component
-@DefaultProperties()
+@DefaultProperties(groupKey = "Payex", threadPoolKey = "Payex")
 public class Payex {
 
-    private Client client;
+    Client client;
 
-    @HystrixCommand(fallbackMethod = "getUserAgreementFallback",
-            groupKey = "Payex")
-    public Response getUserAgreement(UserAgreementRequest request) {
-        return client.getUserAgreement(request);
+    @HystrixCommand(commandKey = "PayexGetUserAgreement",
+                    fallbackMethod = "getUserAgreementFallback")
+    public Response getUserAgreement(String userId) {
+        return client.getUserAgreement(userId);
     }
 
-    public Response getUserAgreementFallback(UserAgreementRequest request) {
-        return UserAgreement.empty(); // something useful
-        // or throw exception here
+    private Response getUserAgreementFallback(String userId) {
+        return UserAgreement.empty(); // or throw exception here
+    }
+
+    @HystrixCommand(commandKey = "PayexPutUserAgreement")
+    public Response putUserAgreement(UserAgreementRequest request) {
+        return client.putUserAgreement(request);
     }
 }
 {% endhighlight %}
 
+In the above example, `Payex` is a bean responsible for communication with external payment provider called Payex. It supports 2 operations: `getUserAgreement` and `putUserAgreement`. Both methods are annotated with `@HystrixCommand`. Spring Cloud automatically wraps Spring beans with that annotation in a proxy that is connected to the Hystrix [circuit breaker][circuit-breaker]. Implementation of this pattern is one the core features of Hystrix. 
+
+According to Fowler:
+> The basic idea behind the circuit breaker is very simple. You wrap a protected function call in a circuit breaker object, which monitors for failures. Once the failures reach a certain threshold, the circuit breaker trips, and all further calls to the circuit breaker return with an error, without the protected call being made at all. Usually you'll also want some kind of monitor alert if the circuit breaker trips.
 
 
+
+
+
+<br/>
+
+---
 
 (easiest would be to scale up instances, increase number of threads, then we used approach with separate threadpools,  but eventually ended up using Hystrix as its more robust & powerful, elegabt...)
 
 (mention that open circuit-breaker also helps the provider recover)
 
 (bonus feature, collapsing requests)
+
+```
+hystrix:
+    command:
+        findAllProducts:
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 1000
+            circuitBreaker:
+                requestVolumeThreshold: 20
+                errorThresholdPercentage: 50
+            metrics:
+                rollingStats:
+                    timeInMilliseconds: 10000
+                    numBuckets: 10
+    threadpool:
+        ProductService:
+            coreSize: 10
+```
 
 [sla]: https://en.wikipedia.org/wiki/Service-level_agreement
 [hystrix-homepage]: https://github.com/Netflix/Hystrix
@@ -64,3 +102,5 @@ public class Payex {
 [asgard]: https://github.com/Netflix/asgard
 [ribbon]: https://github.com/Netflix/ribbon
 [spinnaker]: http://www.spinnaker.io/
+[javanica-github]: https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica
+[circuit-breaker]: https://martinfowler.com/bliki/CircuitBreaker.html
