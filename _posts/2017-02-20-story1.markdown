@@ -1,24 +1,22 @@
 ---
 layout: post
 title: "Story 1 - Lesson on distributed system's resiliency."
-date: 2017-02-17
+date: 2017-02-20
 ---
 
 # Payment Platform
 
-[slice of architecture diagram]
+![Architecture overview]({{ site.url }}/assets/architecture_overview.svg)
 
-![Architecture overview]({{ site.url }}/assets/architecture.svg)
+There is one very central point in the architecture of our payment platform, the Order Service. It orchestrates all payment flows, receiving user requests and making downstream calls to both internal and external services. Payment Provider Adapters (PPAs) are responsible for integrating with APIs of external payment providers (credit card operators, SMS payment providers, banks, etc.). PPAs act as an intermediary when Order Service wants to make an external call. The platform also provides a digital wallet service, enabling users to store money for future payments or withdrawal.
 
-There is one very central point in the architecture of our payment platform, the Order Service. It orchestrates all payment flows, receiving user requests and making downstream calls to payment provider adapters (PPAs)(don't write about it?? only mention as a minor hop) and other internal services. PPAs are responsible for integrating with APIs of external payment providers (credit cards, SMS payments, wire transfers, etc.). (we allow combined flows and offer internal e-wallet solution)
-
-Depending on the flow, most user requests involve multiple synchronous calls to downstream services, often including more than one PPA. As we integrate with a lot of country-specific providers, quality of their APIs vary a lot. It is impossible to define a common [SLA][sla] with all of them, so we cannot rely on any solid boundaries for request execution time or service uptime. (mention also response times hitting 10s)
+Depending on the payment flow, most user requests involve multiple synchronous calls to downstream services, often including more than one external provider. As we integrate with a lot of country-specific providers, quality of their APIs vary a lot. It is impossible to define a common [SLA][sla]{:target="_blank"} with all of them, so we cannot rely on any solid boundaries for request execution time or service uptime.
 
 # The incident
 
 In the beginning, when the payment platform was only receiving a moderate traffic, we could easily overcome minor hickups of our external providers. But after months of steady increase in transaction volume, one such minor hickup caused a major downtime of our platform. One of the providers was experiencing back-end issues, bumping up its API response times to tens of seconds, causing a lot of requests to return failure or simply time out on our side. While this was only one provider among many others, involed in just a part of payment flows, the situation led to exhaustion of client request pools on all Order Service instances. This basically rendered whole payment platform unusable, as it was unable to accept more client requests, also preventing execution of payment flows that exclusively involved healthy external providers. There was no quick way of alleviating the problem, except to wait for the external provider to recover.
 
-[diagram with client request pool -> ppas]
+![Exhausted client request pool]({{ site.url }}/assets/request_pool.svg)
 
 # Finding a solution
 
@@ -30,7 +28,7 @@ Another solution I looked into was isolating points of access between external p
 
 Further reasearching the subject, I have discovered [Hystrix][hystrix-homepage]. It is a latency and fault tolerance library designed to isolate points of access to remote systems, stop cascading failure and enable resilience in distributed systems. It has been developed by [Netflix][netflix-github] among many other great libraries supporting development of microservices, like [Eureka][eureka], [Ribbon][ribbon] or [Asgard][asgard]. Hystrix is able to provide the same thread pool isolation as mentioned above, together with lots of other useful features. I stopped searching here, in my opinion, it was the right tool for the job.
 
-For Spring Boot applications, thanks to [javanica][javanica-github] contrib library, enabling Hystrix boils down to including a couple of annotations.
+For Spring Boot applications, thanks to [javanica][javanica-github] contrib library, enabling Hystrix boils down to including a few annotations.
 
 {% highlight java %}
 @Component
@@ -56,29 +54,17 @@ public class Payex {
 }
 {% endhighlight %}
 
-In the above example, `Payex` is a bean responsible for communication with external payment provider called Payex. It supports 2 operations: `getUserAgreement` and `putUserAgreement`. Both methods are annotated with `@HystrixCommand`. Spring Cloud automatically wraps Spring beans with that annotation in a proxy that is connected to the Hystrix [circuit breaker][circuit-breaker]. Implementation of this pattern is one the core features of Hystrix. 
+In the above example, `Payex` is a component responsible for communication with external payment provider called Payex. It supports 2 operations: `getUserAgreement` and `putUserAgreement`. Both methods are annotated with `@HystrixCommand`. Spring Cloud automatically wraps Spring beans with that annotation in a proxy that is connected to the Hystrix [circuit breaker][circuit-breaker]. Implementation of this pattern is one the core features of Hystrix. 
 
-According to Fowler:
-> The basic idea behind the circuit breaker is very simple. You wrap a protected function call in a circuit breaker object, which monitors for failures. Once the failures reach a certain threshold, the circuit breaker trips, and all further calls to the circuit breaker return with an error, without the protected call being made at all. Usually you'll also want some kind of monitor alert if the circuit breaker trips.
+Annotated method call is wrapped with a `HystrixCommand` object that executes within a separate thread pool designated specifically for communication with Payex API ([command pattern][command-pattern]). Then, Hystrix can monitor executions of such calls, measuring successes, failures (exceptions thrown by client), timeouts, and thread rejections. Commands that exceed a configured execution timeout or throw an exception are stopped, and a fallback method is invoked instead, to provide a default return value or invoke some recovery logic (see `getUserAgreementFallback`). `HystrixCommand` calls without a specified fallback method return an exception in such cases (see `putUserAgreement`).
 
+If the percentage of errors passes a certain threshold, circuit-breaker trips into an `open` state. It stays in this state for a configured amount of time, rejecting all further method calls and immediately routing to the fallback method. After some time, circuit-breaker switches into a `half-open` state and lets a single request in. If it is successful, circuit-breaker goes back to the `closed` state, resuming regular communication with the external provider. 
 
-
-
-
-<br/>
-
----
-
-(easiest would be to scale up instances, increase number of threads, then we used approach with separate threadpools,  but eventually ended up using Hystrix as its more robust & powerful, elegabt...)
-
-(mention that open circuit-breaker also helps the provider recover)
-
-(bonus feature, collapsing requests)
-
+Hystrix can be easily configured using properties:
 ```
 hystrix:
     command:
-        findAllProducts:
+        PayexGetUserAgreement:
             execution:
                 isolation:
                     thread:
@@ -86,14 +72,24 @@ hystrix:
             circuitBreaker:
                 requestVolumeThreshold: 20
                 errorThresholdPercentage: 50
-            metrics:
-                rollingStats:
-                    timeInMilliseconds: 10000
-                    numBuckets: 10
     threadpool:
-        ProductService:
+        Payex:
             coreSize: 10
 ```
+
+# Benefits
+
+After benchmarking the solution, Hystrix proved to be really effective in solving all kinds of problems related to the incident above. We have decided to use it with every HTTP client in Order Service. It completely isolates access points between different external payment providers and allows for fine tuning of configuration for each of them. We can individually control timeouts, error thresholds, thread pool sizes, to match the performance characteristics of the provider's API. Regardless of a scale of failure, with Hystrix, one downstream service is not able to take down the whole application anymore. 
+
+<br/>
+
+---
+
+(mention that open circuit-breaker also helps the provider recover)
+
+(bonus feature, collapsing requests)
+
+
 
 [sla]: https://en.wikipedia.org/wiki/Service-level_agreement
 [hystrix-homepage]: https://github.com/Netflix/Hystrix
@@ -104,3 +100,4 @@ hystrix:
 [spinnaker]: http://www.spinnaker.io/
 [javanica-github]: https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica
 [circuit-breaker]: https://martinfowler.com/bliki/CircuitBreaker.html
+[command-pattern]: https://en.wikipedia.org/wiki/Command_pattern
