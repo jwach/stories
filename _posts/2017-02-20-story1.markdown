@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Story 1 - Lesson on distributed system's resiliency."
+title: "Story 1 - Resiliency in a distributed system."
 date: 2017-02-20
 ---
 
@@ -80,6 +80,8 @@ hystrix:
 # Benefits
 
 After benchmarking the solution, Hystrix proved to be really effective in solving all kinds of problems related to the incident above. We have decided to use it with every HTTP client in Order Service. It completely isolates access points between different external payment providers and allows for fine tuning of configuration for each of them. We can individually control timeouts, error thresholds, thread pool sizes, to match the performance characteristics of the provider's API. Regardless of a scale of failure, with Hystrix, one downstream service is not able to take down the whole application anymore. 
+
+![Hystrix dashboard]({{ site.url }}/assets/hystrix_dashboard.png)
 
 <br/>
 
