@@ -1,0 +1,58 @@
+---
+layout: post
+title: "Story 2 - Communication in a distributed team."
+date: 2017-02-20
+---
+
+This is another story starting with an incident. There will not be much technology in it, although the situation described here has truly helped me become a better developer and a team player.
+
+Our team is split evenly between Oslo and Kraków. Additionaly, people can work remotely whenever they feel like doing so. All of us work on one product, in small feature teams that a periodically reassigned to different parts of the platform. Those teams are made up of people from both locations, and developers can move between them.
+
+One sunny afternoon in Kraków, an email lands in everyone's inbox, from our Director of Engineering in Oslo:
+
+<blockquote>
+<b>Topic: Payment inconsistency task force</b><br/>
+This is top priority. Help if asked.<br/>
+(...)<br/>
+Team, the payment platform is the key to Schibsted revenue in the future. If we slip up in a system like this we can hurt Schibsted's relationship with the user and loose a lot of money.<br/>
+Due to the production issues regarding the inconsistencies (...) we are in a uncomfortable situation that we don’t feel we have control or visibility into our platform.<br/>
+(...)<br/>
+It is <b>top priority</b> to gain that control and visibility as fast as possible.
+(...)<br/>
+We are establishing a task force (...) to adress these issues. (...) If you are asked to help or participate, please do so, other things can wait.<br/>
+(...)
+</blockquote>
+
+**What the hell?**
+
+No one in Kraków knows what is this about, what inconsistencies is he talking about, and why is this email CCed to half of Schibsted's management from all over the world.
+
+So task force has been established, calls were made, teleconferences were organised. Poor Markus had to fly all the way to Kraków for just 1 day, to have a task force meeting with us.
+
+And what was the problem?
+
+It turned out that some unhandled corner cases were leading to creation of unmatched transactions in our financial reporting system. It looked like we were loosing money.
+
+
+
+it has grown to enormous problem in Oslo
+
+
+<br/>
+
+---
+
+After the incident I realised something and came to a few conclusions/rules.
+
+1. Communicate proactively.
+2. Meet in real from time to time
+3. 
+
+
+You realise it's not enough to be a good listener and communicator.
+You realise being a good team player & communicator locally does not translate into any remote communication skills.
+You realise you need to be proactive, communicate in moments you have never thought of, be uncomfortable, spamming people.
+
+Examples:
+1. Post on Slack: "I'm restarting Jenkins to get rid of zombie processes". You didn't so you trashed build history of one guy molesting acceptance tests after hours.
+2. One guy in Oslo goes to a CEO that he/she is scared that data consistency is out of control. One our side, it's just a ticket in the backlog, with not-so-high priority.
