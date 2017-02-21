@@ -4,9 +4,11 @@ title: "Story 2 - Communication in a distributed team."
 date: 2017-02-20
 ---
 
-This is another story starting with an incident. There will not be much technology in it, although the situation described here has truly helped me become a better developer and a team player.
+# The incident again
 
-Our team is split evenly between Oslo and Kraków. Additionaly, people can work remotely whenever they feel like doing so. All of us work on one product, in small feature teams that a periodically reassigned to different parts of the platform. Those teams are made up of people from both locations, and developers can move between them.
+This is another story starting with an incident. There will not be much technology in it, although the situation described here has truly helped me become a better developer and team player.
+
+Our team is split evenly between Oslo and Kraków. Additionally, people can work remotely whenever they feel like doing so. All of us work on one product, in small feature teams that are periodically reassigned to different parts of the platform. Those teams are made up of people from both locations, and developers can move between them.
 
 One sunny afternoon in Kraków, an email lands in everyone's inbox, from our Director of Engineering in Oslo:
 
@@ -23,20 +25,23 @@ We are establishing a task force (...) to adress these issues. (...) If you are 
 (...)
 </blockquote>
 
-**What the hell?**
+# What the hell?
 
 No one in Kraków knows what is this about, what inconsistencies is he talking about, and why is this email CCed to half of Schibsted's management from all over the world.
 
-So task force has been established, calls were made, teleconferences were organised. Poor Markus had to fly all the way to Kraków for just 1 day, to have a task force meeting with us.
+So, a task force has been established, calls were made, teleconferences were organised. Poor Markus had to fly all the way to Kraków for just 1 day, to have a task force meeting with us.
 
-And what was the problem?
+# And what was the problem?
 
-It turned out that some unhandled corner cases were leading to creation of unmatched transactions in our financial reporting system. It looked like we were loosing money.
+It turned out that some unhandled corner cases were leading to creation of unmatched transactions in our financial reporting system. It looked like we were loosing money. Except that it looked like that only for developers in Oslo. Someone in our Norwegian team noticed the symptoms, got scared, consulted with his/her office mates. Eventually, they raised the issue with our Director of Engineering and things got escalated.
 
+In the meantime, the "issue" was just a task in the backlog of one of the teams with a majority of developers in Kraków, not so highly prioritised. The issue we discussed a lot in Kraków and we have known for quite some time. We even agreed to postpone a code fix until later time, as we could easily correct transaction data manually when it occured.
 
+We were so confidently ignoring it that we forgot about one thing, people in Oslo did not know about it. They were not participating in these over-the-desk discussions, they were not analysing the problem on a whiteboard with us. They were 1500kms away and everyone in Kraków forgot about that.
 
-it has grown to enormous problem in Oslo
+# Communication skills
 
+This experience made me realise that communication in a distributed team is a skill to master, not something that comes automatically. A skill that needs to be developed and requires conscious practice. 
 
 <br/>
 
