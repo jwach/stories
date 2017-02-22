@@ -47,13 +47,30 @@ This experience made me realise that communication in a distributed team is a sk
 
 After this, and many other less spectacular incidents, I have come up with my own set of rules to follow. They are intended for individuals and teams that want to become better at communicating in a distributed environment.
 
-1. **Be proactive.**
+1. **Be super spammy.**
    
-   asdasd
+   Use Slack or email to communicate everything you do. Communicate even if you feel like you do not need to. Tiny code refactors, configuration tweaks, deployments, instance reboots. There might be someone whose work is going to be affected by what you just did.
+   > It is 7 pm, you are the last one in the office. You reboot that annoying Jenkins host which gets swamped by zombie processes from old builds.
+   <br/>Ops. You just trashed build history of the acceptance tests suite that someone was trying to debug after hours at home.
 
-   sdsd
+   Deploying a tiny irrelevant fix to production? Shout out in Slack. There might be someone else trying to quick-fix a tiny irrelevant fix that failed on production and got rolled back. You are just going to make it fail again.
 
-2. **Meet in real.**
+2. **Be super spammy, online!**
+
+   You just mumbled that you are going to do something and 2 colleagues seating next to you mumbled in affirmation. You feel good about it and proceed. Well, your colleagues seating in a conference room nearby did not hear that, neither did those seating 2000kms away. Use a special Slack channel for small announcements, make it a habit for everyone to use it.
+
+3. **Meet in real.**
+
+   It is easier to befriend your coworkers in real. Friendships among developers in a distributed team create additional communication channels. Organise on-site workshops regularly, fly people over from other locations. Create meeting opportunities away from the office, like voluntary weekend getaways.
+   <br/>Meeting coworkers in real also helps to reduce hostility. I have seen online design discussions turning into flame wars pretty quickly. It is harder to be hostile in a face-to-face situation. It makes online communication more civilised once everyone met in real.
+
+4. **Hmmm**
+
+
+
+
+
+
 
 <br/>
 
