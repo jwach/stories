@@ -62,7 +62,7 @@ public class Payex {
 
 In the above example, `Payex` is a component responsible for communication with external payment provider called Payex. It supports 2 operations: `getUserAgreement` and `putUserAgreement`. Both methods are annotated with `@HystrixCommand`. Spring Cloud automatically wraps Spring beans with that annotation in a proxy that is connected to the Hystrix [circuit breaker][circuit-breaker]{:target="_blank"}. Implementation of this pattern is one the core features of Hystrix. 
 
-Annotated method call is wrapped with a `HystrixCommand` object that executes within a separate thread pool designated specifically for communication with Payex API ([command pattern][command-pattern]{:target="_blank"}). Then, Hystrix can monitor executions of such calls, measuring successes, failures (exceptions thrown by client), timeouts, and thread rejections. Commands that exceed a configured execution timeout or throw an exception are stopped, and a fallback method is invoked instead, to provide a default return value or invoke some recovery logic (see `getUserAgreementFallback`). `HystrixCommand` calls without a specified fallback method return an exception in such cases (see `putUserAgreement`).
+Annotated method call is wrapped with a `HystrixCommand` object that executes within a separate thread pool designated specifically for communication with Payex API ([bulkhead pattern][bulkhead-pattern]{:target="_blank"}). Then, Hystrix can monitor executions of such calls, measuring successes, failures (exceptions thrown by client), timeouts, and thread rejections. Commands that exceed a configured execution timeout or throw an exception are stopped, and a fallback method is invoked instead, to provide a default return value or invoke some recovery logic (see `getUserAgreementFallback`). `HystrixCommand` calls without a specified fallback method return an exception in such cases (see `putUserAgreement`).
 
 If the percentage of errors passes a certain threshold, circuit-breaker trips into an `open` state. It stays in this state for a configured amount of time, rejecting all further method calls and immediately routing to the fallback method. After this sleep window passes, circuit-breaker switches into a `half-open` state and lets a single request in. If it is successful, circuit-breaker goes back to the `closed` state, resuming regular communication with the external provider. 
 
@@ -103,6 +103,6 @@ Screenshot below shows a dashboard for the `Payex` component, with one circuit-b
 [spinnaker]: http://www.spinnaker.io/
 [javanica-github]: https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica
 [circuit-breaker]: https://martinfowler.com/bliki/CircuitBreaker.html
-[command-pattern]: https://en.wikipedia.org/wiki/Command_pattern
 [hystrix-dashboard]: https://github.com/Netflix/Hystrix/wiki/Dashboard
 [hystrix-configuration]: https://github.com/Netflix/Hystrix/wiki/Configuration
+[bulkhead-pattern]: http://cdn.oreillystatic.com/en/assets/1/event/79/Stability%20Patterns%20Presentation.pdf
