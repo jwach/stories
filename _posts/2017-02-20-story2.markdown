@@ -41,7 +41,19 @@ We were so confidently ignoring it that we forgot about one thing, people in Osl
 
 # Communication skills
 
-This experience made me realise that communication in a distributed team is a skill to master, not something that comes automatically. A skill that needs to be developed and requires conscious practice. 
+This experience made me realise that communication in a distributed team is a skill to master, not something that comes automatically. A skill that needs to be developed and requires conscious practice. Although we have discussed how important communication is, we did not really know what makes it sucessful, how often to communicate and in what ways. Everyone was feeling like a confident communicator with all those modern tools, Slack, email, video conferences. Yet we were still failing. (we were communicating a lot, but not in the right way)(there wasn't any framework for measuring effectiveness)
+
+(it's hard to measure but... maybe in the number of incidents, but this is extreme, )
+
+After this, and many other less spectacular incidents, I have come up with my own set of rules to follow. They are intended for individuals and teams that want to become better at communicating in a distributed environment.
+
+1. **Be proactive.**
+   
+   asdasd
+
+   sdsd
+
+2. **Meet in real.**
 
 <br/>
 
@@ -49,8 +61,8 @@ This experience made me realise that communication in a distributed team is a sk
 
 After the incident I realised something and came to a few conclusions/rules.
 
-1. Communicate proactively.
-2. Meet in real from time to time
+1. Communicate proactively. (jenkins example)
+2. Meet in real from time to time (easier to become agressive without a face)
 3. 
 
 
