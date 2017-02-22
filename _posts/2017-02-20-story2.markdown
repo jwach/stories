@@ -49,7 +49,7 @@ After this, and many other less spectacular incidents, I have come up with my ow
    
    Use Slack or email to communicate everything you do. Communicate even if you feel like you do not need to. Tiny code refactors, configuration tweaks, deployments, instance reboots. There might be someone whose work is going to be affected by what you just did.
    > It is 7 pm, you are the last one in the office. You reboot that annoying Jenkins host which gets swamped by zombie processes from old builds.
-   <br/>Ops. You just trashed build history of the acceptance tests suite that someone was trying to debug after hours at home.
+   <br/>Oops. You just trashed build history of the acceptance tests suite that someone was trying to debug after hours at home.
 
    Deploying a tiny irrelevant fix to production? Shout out in Slack. There might be someone else trying to quick-fix a tiny irrelevant fix that failed on production and got rolled back. You are just going to make it fail again.
 
