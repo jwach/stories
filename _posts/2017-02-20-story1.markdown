@@ -4,6 +4,8 @@ title: "Story 1 - Resiliency in a distributed system."
 date: 2017-02-20
 ---
 
+This story starts with an incident. An incident that has helped me gain a deeper understanding of resiliency in a distributed system. It has lead to discovery of helpful stability patterns and tools that provide their implementations.
+
 # Payment Platform
 
 ![Architecture overview]({{ site.url }}/assets/architecture_overview.svg)
